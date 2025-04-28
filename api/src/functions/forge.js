@@ -37,6 +37,7 @@ Using this specification:
 ${JSON.stringify(spec, null, 2)}
 
 Return the generated component code as a JSON object with filenames as keys and content as values.
+DO NOT include any explanatory text outside the JSON. Your response should be parseable as JSON.
 `;
 
       // Send the request to Azure OpenAI using the new API
@@ -56,13 +57,34 @@ Return the generated component code as a JSON object with filenames as keys and 
       // Extract the response
       const componentResponse = response.choices[0]?.message?.content || "{}";
 
+      // Try to clean any explanatory text before/after the JSON
+      let cleanedResponse = componentResponse;
+      // Extract content between ``` if it exists (in case AI wraps JSON in markdown code block)
+      const codeBlockMatch = componentResponse.match(
+        /```(?:json)?\s*([\s\S]*?)\s*```/
+      );
+      if (codeBlockMatch) {
+        cleanedResponse = codeBlockMatch[1].trim();
+      }
+      // If that didn't work, try to find JSON by looking for opening/closing braces
+      else if (
+        componentResponse.includes("{") &&
+        componentResponse.includes("}")
+      ) {
+        const firstBrace = componentResponse.indexOf("{");
+        const lastBrace = componentResponse.lastIndexOf("}") + 1;
+        if (firstBrace >= 0 && lastBrace > firstBrace) {
+          cleanedResponse = componentResponse.substring(firstBrace, lastBrace);
+        }
+      }
+
       // Try to parse the response as JSON - if it's not JSON, create a response with a single file
       let files;
       try {
-        files = JSON.parse(componentResponse);
+        files = JSON.parse(cleanedResponse);
         // If the response is an object but not in the expected format (keys as filenames), wrap it
         if (typeof files !== "object" || Array.isArray(files)) {
-          files = { "Component.tsx": componentResponse };
+          files = { "Component.tsx": cleanedResponse };
         }
       } catch (e) {
         // If parsing fails, assume the response is the raw component code
