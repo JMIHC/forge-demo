@@ -204,7 +204,7 @@ export default function Editors() {
 
         {/* Code Display Section */}
         <div className="flex flex-col">
-          <div className="flex-grow border border-gray-700 rounded h-[350px]">
+          <div className="flex-grow border border-gray-700 rounded">
             <Editor
               height="320px"
               defaultLanguage="typescript"
