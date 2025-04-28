@@ -1,0 +1,21 @@
+{
+  "name": "api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./src/functions/*.js",
+  "type": "module",
+  "scripts": {
+    "build": "mkdir -p dist && cp -R src/functions/* dist",
+    "start": "func start",
+    "test": "echo \"No tests yet...\""
+  },
+  "dependencies": {
+    "@azure/core-auth": "^1.9.0",
+    "@azure/functions": "^4.0.0",
+    "@azure/openai": "2.0.0",
+    "openai": "^4.96.0"
+  },
+  "devDependencies": {
+    "azure-functions-core-tools": "^4.x"
+  }
+}
