@@ -238,7 +238,7 @@ export default function Editors() {
         {/* Diff Section */}
         {hasPreviousGeneration && (
           <div className="flex flex-col">
-            <h3 className="text-md font-semibold mb-2 text-gray-300">Diff View to show determinism</h3>
+            <h3 className="text-md font-semibold mb-2 text-gray-300">Diff View to check about determinism</h3>
             <div className="border border-gray-700 rounded overflow-scroll h-[300px]">
               <DiffViewer
                 oldValue={prevCode}
