@@ -1,12 +1,37 @@
+/* Apply dark mode styles */
+body.dark {
+  background-color: #121212;
+  color: #e0e0e0;
+}
+
+/* Apply light mode styles */
+body.light {
+  background-color: #f8f8f8;
+  color: #333333;
+}
+
+/* Transition effect for theme switching */
+body {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Override some Tailwind styles for light/dark modes */
+.dark button.bg-gray-700,
+.dark button.hover\:bg-gray-700:hover {
+  background-color: #374151;
+}
+
+.light button.bg-gray-200,
+.light button.hover\:bg-gray-200:hover {
+  background-color: #e5e7eb;
+}
+
+/* Default styles below */
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-
   color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -16,17 +41,4 @@
 h1 {
   font-size: 3.2em;
   line-height: 1.1;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
 }

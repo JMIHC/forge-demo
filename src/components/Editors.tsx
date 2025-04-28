@@ -6,8 +6,10 @@ import { getSpec, getComponent } from "../lib/forgeClient";
 import { Select, SelectTrigger, SelectContent,
     SelectItem, SelectValue } from "../components/ui/select";
 import { templates } from "../templates/index";
+import { useTheme } from "../context/ThemeContext";
 
 export default function Editors() {
+  const { editorTheme, theme } = useTheme();
   const [prompt, setPrompt] = useState('// Dev requirements to be rendered to JSON spec');
   const [spec,   setSpec]   = useState("{}");
   const [code,   setCode]   = useState("// generated code here");
@@ -114,19 +116,19 @@ export default function Editors() {
 
   return (
     <div className="flex flex-col w-full space-y-6">
-      <h1 className="text-2xl ml-4 mt-4 font-semibold text-gray-300">Prompt-as-Policy Demo</h1>
+      <h1 className={`text-2xl ml-4 mt-4 font-semibold ${theme === 'dark' ? 'text-gray-300' : 'text-gray-800'}`}>Prompt-as-Policy Demo</h1>
       
       <div className="p-4 flex flex-col space-y-8">
         {/* Prompt Section */}
         <div className="flex flex-col">
-          <h2 className="text-lg font-semibold mb-2 text-gray-300">Enter business requirements for the component:</h2>
-          <div className="h-[300px] border border-gray-700 rounded">
+          <h2 className={`text-lg font-semibold mb-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-800'}`}>Enter custom requirements for Table, Chart, or Datepicker:</h2>
+          <div className={`h-[300px] border rounded ${theme === 'dark' ? 'border-gray-700' : 'border-gray-400'}`}>
             <Editor
               height="100%"
               defaultLanguage="markdown"
               defaultValue={prompt}
               onChange={(v) => setPrompt(v ?? '')}
-              theme="vs-dark"
+              theme={editorTheme}
               options={{ minimap: { enabled: false }, fontSize: 20 }}
             />
           </div>
@@ -134,7 +136,7 @@ export default function Editors() {
             <Button 
               onClick={handleGenerateSpec} 
               variant="outline" 
-              className="hover:bg-blue-700 transition-colors hover:cursor-pointer"
+              className={`hover:bg-blue-700 hover:text-white transition-colors hover:cursor-pointer ${theme === 'dark' ? 'border-gray-600' : 'border-gray-400'}`}
               disabled={isSpecLoading}
             >
               {isSpecLoading ? 'Generating...' : 'Generate JSON spec'}
@@ -145,13 +147,13 @@ export default function Editors() {
         {/* JSON Spec Section */}
         {spec !== "{}" && (
           <div className="flex flex-col">
-            <h3 className="text-md font-semibold mb-2 text-gray-300">JSON Specification</h3>
-            <div className="border border-gray-700 rounded h-[200px]">
+            <h3 className={`text-md font-semibold mb-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-800'}`}>JSON Specification</h3>
+            <div className={`border rounded h-[200px] ${theme === 'dark' ? 'border-gray-700' : 'border-gray-400'}`}>
               <Editor
                 height="100%"
                 defaultLanguage="json"
                 value={spec}
-                theme="vs-dark"
+                theme={editorTheme}
                 options={{ 
                   minimap: { enabled: false }, 
                   fontSize: 20,
@@ -164,9 +166,9 @@ export default function Editors() {
 
         {/* Template and Generation Section */}
         <div className="flex flex-col">
-          <h2 className="text-lg font-semibold text-gray-300">Generate the Code</h2>
+          <h2 className={`text-lg font-semibold ${theme === 'dark' ? 'text-gray-300' : 'text-gray-800'}`}>Generate the Code</h2>
           <div className="flex flex-col gap-2">
-            <h3 className="text-md font-semibold my-2 text-gray-300">
+            <h3 className={`text-md font-semibold my-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-800'}`}>
               First select policy template, then generate the component, a combination of JSON spec and guiding policy.
               The JSON spec helps prevent format drift. 
               The template acts as guardrails to ensure the generated code uses base components (here shadcn/ui) and 
@@ -179,12 +181,12 @@ export default function Editors() {
                   setSelectedTemplateName(v);
                 }}
               >
-                <SelectTrigger className="w-[180px] hover:cursor-pointer hover:bg-amber-700 transition-colors">
+                <SelectTrigger className={`w-[180px] hover:cursor-pointer hover:bg-amber-700 hover:text-white transition-colors ${theme === 'dark' ? 'text-gray-200' : 'text-gray-800'}`}>
                   <SelectValue placeholder="Choose template" />
                 </SelectTrigger>
-                <SelectContent className="hover:cursor-pointer bg-gray-700">
+                <SelectContent className={`hover:cursor-pointer ${theme === 'dark' ? 'bg-gray-700 text-gray-200' : 'bg-white text-gray-800'}`}>
                   {Object.keys(templates).map((key) => (
-                    <SelectItem key={key} value={key} className="hover:cursor-pointer hover:bg-amber-700 transition-colors">
+                    <SelectItem key={key} value={key} className="hover:cursor-pointer hover:bg-amber-700 hover:text-white  transition-colors">
                       {key.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
                     </SelectItem>
                   ))}
@@ -193,7 +195,7 @@ export default function Editors() {
               <Button 
                 onClick={handleGenerateCode} 
                 variant="outline"
-                className="hover:bg-purple-700 w-[180px] transition-colors hover:cursor-pointer"
+                className={`hover:bg-purple-700 hover:text-white w-[180px] transition-colors hover:cursor-pointer ${theme === 'dark' ? 'border-gray-600' : 'border-gray-400'}`}
                 disabled={isCodeLoading}
               >
                 {isCodeLoading ? 'Generating...' : 'Generate Component'}
@@ -204,13 +206,13 @@ export default function Editors() {
 
         {/* Code Display Section */}
         <div className="flex flex-col">
-          <div className="flex-grow border border-gray-700 rounded">
+          <div className={`flex-grow border rounded ${theme === 'dark' ? 'border-gray-700' : 'border-gray-400'}`}>
             <Editor
               height="320px"
               defaultLanguage="typescript"
               value={code}
               onChange={(v) => setCode(v ?? '')}
-              theme="vs-dark"
+              theme={editorTheme}
               options={{ 
                 minimap: { enabled: false }, 
                 fontSize: 20,
@@ -224,7 +226,7 @@ export default function Editors() {
         {/* Diff Button */}
         <div className="flex justify-end">
           <button
-            className="px-3 py-1 rounded border border-gray-600 hover:bg-gray-700"
+            className={`px-3 py-1 rounded border hover:cursor-pointer ${theme === 'dark' ? 'border-gray-700 text-gray-200 hover:bg-gray-700' : 'border-gray-400 text-gray-800 hover:bg-gray-200'}`}
             onClick={() => {
               setPrevCode(code);
               setHasPreviousGeneration(true);
@@ -238,13 +240,13 @@ export default function Editors() {
         {/* Diff Section */}
         {hasPreviousGeneration && (
           <div className="flex flex-col">
-            <h3 className="text-md font-semibold mb-2 text-gray-300">Diff View to check about determinism</h3>
-            <div className="border border-gray-700 rounded overflow-scroll h-[300px]">
+            <h3 className={`text-md font-semibold mb-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-800'}`}>Diff View to show determinism</h3>
+            <div className={`border rounded overflow-scroll h-[300px] ${theme === 'dark' ? 'border-gray-700' : 'border-gray-400'}`}>
               <DiffViewer
                 oldValue={prevCode}
                 newValue={code}
                 splitView
-                useDarkTheme={true}
+                useDarkTheme={editorTheme === 'vs-dark'}
               />
             </div>
           </div>
