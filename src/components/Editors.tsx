@@ -9,7 +9,7 @@ import { templates } from "../templates/index";
 import { useTheme } from "../context/ThemeContext";
 
 export default function Editors() {
-  const { editorTheme, theme } = useTheme();
+  const { editorTheme, theme, toggleTheme } = useTheme();
   const [prompt, setPrompt] = useState('// Dev requirements to be rendered to JSON spec');
   const [spec,   setSpec]   = useState("{}");
   const [code,   setCode]   = useState("// generated code here");
@@ -116,8 +116,21 @@ export default function Editors() {
 
   return (
     <div className="flex flex-col w-full space-y-6">
+      <div className="flex justify-between items-center">
       <h1 className={`text-2xl ml-4 mt-4 font-semibold ${theme === 'dark' ? 'text-gray-300' : 'text-gray-800'}`}>Prompt-as-Policy Demo</h1>
-      
+      {/* Theme Toggle */}
+      <button 
+        onClick={toggleTheme}
+        className={`mr-4 mt-4 z-10 rounded-full p-2.5 
+                  shadow-md border transition-colors hover:cursor-pointer
+                  ${theme === 'dark' 
+                    ? 'bg-gray-800 text-yellow-300 border-gray-700' 
+                    : 'bg-white text-gray-800 border-gray-300'}`}
+        aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+      >
+        {theme === 'dark' ? '☀️' : '🌙'}
+      </button>
+      </div>
       <div className="p-4 flex flex-col space-y-8">
         {/* Prompt Section */}
         <div className="flex flex-col">
