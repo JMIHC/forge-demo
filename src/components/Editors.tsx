@@ -253,7 +253,7 @@ export default function Editors() {
         {/* Diff Section */}
         {hasPreviousGeneration && (
           <div className="flex flex-col">
-            <h3 className={`text-md font-semibold mb-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-800'}`}>Diff View to show determinism</h3>
+            <h3 className={`text-md font-semibold mb-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-800'}`}>Diff View to consider variance between generations</h3>
             <div className={`border rounded overflow-scroll h-[300px] ${theme === 'dark' ? 'border-gray-700' : 'border-gray-400'}`}>
               <DiffViewer
                 oldValue={prevCode}
