@@ -50,7 +50,7 @@ DO NOT include any explanatory text outside the JSON. Your response should be pa
           },
           { role: "user", content: prompt },
         ],
-        temperature: 0.2,
+        temperature: 0,
         max_tokens: 4000,
       });
 

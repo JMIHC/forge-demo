@@ -6,19 +6,15 @@ import { getSpec, getComponent } from "../lib/forgeClient";
 import { Select, SelectTrigger, SelectContent,
     SelectItem, SelectValue } from "../components/ui/select";
 import { templates } from "../templates/index";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs"
 
 export default function Editors() {
   const [prompt, setPrompt] = useState('// Dev requirements to be rendered to JSON spec');
   const [spec,   setSpec]   = useState("{}");
   const [code,   setCode]   = useState("// generated code here");
-  const [testCode, setTestCode] = useState("");
   const [prevCode, setPrevCode] = useState("");
-  const [prevTestCode, setPrevTestCode] = useState("");
   const [hasPreviousGeneration, setHasPreviousGeneration] = useState(false);
   const [isSpecLoading, setIsSpecLoading] = useState(false);
   const [isCodeLoading, setIsCodeLoading] = useState(false);
-  const [currentTab, setCurrentTab] = useState("component");
   const templateKeys = Object.keys(templates);
   const [selectedTemplateName, setSelectedTemplateName] =
     useState(templateKeys[0]);
@@ -40,7 +36,6 @@ export default function Editors() {
       // Save the current code for diff only if it's not the initial placeholder
       if (code !== "// generated code here" && code.trim() !== "") {
         setPrevCode(code);
-        setPrevTestCode(testCode);
         setHasPreviousGeneration(true);
       }
       
@@ -75,12 +70,6 @@ export default function Editors() {
         !name.toLowerCase().includes('stories')
       );
       
-      // Find test file (explicitly search for .test. or Test in filename)
-      const testFile = fileEntries.find(([name]) => 
-        name.toLowerCase().includes('.test.') || 
-        name.toLowerCase().includes('test.')
-      );
-      
       // Update state with the component file
       if (componentFile) {
         let componentCode = '';
@@ -108,35 +97,9 @@ export default function Editors() {
         setCode("// No component code found in the response");
         console.log('No component file found in the response');
       }
-      
-      // Update state with the test file
-      if (testFile) {
-        let testCodeContent = '';
-        
-        if (typeof testFile[1] === 'string') {
-          // The content is already a string, use it directly
-          testCodeContent = testFile[1];
-        } else if (typeof testFile[1] === 'object') {
-          // The content is an object, stringify it
-          testCodeContent = JSON.stringify(testFile[1], null, 2);
-        }
-        
-        // Clean up the code by removing any file prefix comments if they exist
-        testCodeContent = testCodeContent.replace(/\/\/ \{file: .*?\}\n/, '');
-        
-        setTestCode(formatCode(testCodeContent));
-        console.log('Test file set:', testFile[0]);
-        
-        // Automatically switch to test tab after generation
-        setCurrentTab("test");
-      } else {
-        setTestCode("// No test file was generated for this component.");
-        console.log('No test file found in the response');
-      }
     } catch (error) {
       console.error('Error generating component:', error);
       setCode("// Error generating component: " + (error instanceof Error ? error.message : String(error)));
-      setTestCode("// Error generating test: " + (error instanceof Error ? error.message : String(error)));
     } finally {
       setIsCodeLoading(false);
     }
@@ -240,59 +203,22 @@ export default function Editors() {
         </div>
 
         {/* Code Display Section */}
-        <div className="flex flex-col h-[350px]">
-          <Tabs 
-            value={currentTab} 
-            onValueChange={setCurrentTab} 
-            className="w-full"
-          >
-            <TabsList className="mb-2">
-              <TabsTrigger 
-                value="component" 
-                className="hover:cursor-pointer hover:bg-gray-700 flex-1"
-              >
-                Component
-              </TabsTrigger>
-              <TabsTrigger 
-                value="test" 
-                className="hover:cursor-pointer hover:bg-gray-700 flex-1"
-              >
-                Unit Test {testCode && testCode !== "// No test file was generated for this component." && "✓"}
-              </TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="component" className="flex-grow border border-gray-700 rounded h-[350px]">
-              <Editor
-                height="320px"
-                defaultLanguage="typescript"
-                value={code}
-                onChange={(v) => setCode(v ?? '')}
-                theme="vs-dark"
-                options={{ 
-                  minimap: { enabled: false }, 
-                  fontSize: 20,
-                  formatOnPaste: true,
-                  formatOnType: true
-                }}
-              />
-            </TabsContent>
-            
-            <TabsContent value="test" className="flex-grow border border-gray-700 rounded h-[350px]">
-              <Editor
-                height="320px"
-                defaultLanguage="typescript"
-                value={testCode || "// No test file generated yet"}
-                onChange={(v) => setTestCode(v ?? '')}
-                theme="vs-dark"
-                options={{ 
-                  minimap: { enabled: false }, 
-                  fontSize: 20,
-                  formatOnPaste: true,
-                  formatOnType: true
-                }}
-              />
-            </TabsContent>
-          </Tabs>
+        <div className="flex flex-col">
+          <div className="flex-grow border border-gray-700 rounded h-[350px]">
+            <Editor
+              height="320px"
+              defaultLanguage="typescript"
+              value={code}
+              onChange={(v) => setCode(v ?? '')}
+              theme="vs-dark"
+              options={{ 
+                minimap: { enabled: false }, 
+                fontSize: 20,
+                formatOnPaste: true,
+                formatOnType: true
+              }}
+            />
+          </div>
         </div>
         
         {/* Diff Button */}
@@ -301,7 +227,6 @@ export default function Editors() {
             className="px-3 py-1 rounded border border-gray-600 hover:bg-gray-700"
             onClick={() => {
               setPrevCode(code);
-              setPrevTestCode(testCode);
               setHasPreviousGeneration(true);
             }}
             disabled={code === "// generated code here" || code.trim() === ""}
@@ -313,11 +238,11 @@ export default function Editors() {
         {/* Diff Section */}
         {hasPreviousGeneration && (
           <div className="flex flex-col">
-            <h3 className="text-md font-semibold mb-2 text-gray-300">Diff View</h3>
-            <div className="border border-gray-700 rounded overflow-hidden h-[300px]">
+            <h3 className="text-md font-semibold mb-2 text-gray-300">Diff View to show determinism</h3>
+            <div className="border border-gray-700 rounded overflow-scroll h-[300px]">
               <DiffViewer
-                oldValue={currentTab === "component" ? prevCode : prevTestCode}
-                newValue={currentTab === "component" ? code : testCode}
+                oldValue={prevCode}
+                newValue={code}
                 splitView
                 useDarkTheme={true}
               />
